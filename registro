@@ -1,0 +1,149 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Horas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="min-h-screen flex flex-col items-center justify-center">
+        <div class="bg-white p-8 rounded shadow-md w-full max-w-md mb-8">
+            <h1 class="text-2xl font-bold mb-6 text-center">Registro de Horas</h1>
+            <form id="registroForm">
+                <div class="mb-4">
+                    <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+                <div class="mb-4">
+                    <label for="rango" class="block text-sm font-medium text-gray-700">Rango</label>
+                    <input type="text" id="rango" name="rango" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+                <div class="mb-4">
+                    <label for="fecha" class="block text-sm font-medium text-gray-700">Fecha</label>
+                    <input type="date" id="fecha" name="fecha" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+                <div class="mb-4">
+                    <label for="horaEntrada" class="block text-sm font-medium text-gray-700">Hora de Entrada</label>
+                    <input type="time" id="horaEntrada" name="horaEntrada" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+                <div class="mb-4">
+                    <label for="horaSalida" class="block text-sm font-medium text-gray-700">Hora de Salida</label>
+                    <input type="time" id="horaSalida" name="horaSalida" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+                <div class="mb-6">
+                    <button type="button" onclick="calcularHoras()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Registrar</button>
+                </div>
+            </form>
+        </div>
+        <div class="bg-white p-8 rounded shadow-md w-full max-w-4xl mb-8">
+            <h2 class="text-xl font-bold mb-4 text-center">Buscar Registros</h2>
+            <div class="mb-4">
+                <label for="buscarNombre" class="block text-sm font-medium text-gray-700">Buscar por Nombre</label>
+                <input type="text" id="buscarNombre" name="buscarNombre" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <button type="button" onclick="buscarRegistro()" class="mt-2 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Buscar</button>
+            </div>
+            <div id="tablaContainer" class="hidden">
+                <h2 class="text-xl font-bold mb-4 text-center">Historial de Registros</h2>
+                <table class="min-w-full bg-white">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-4 border-b border-gray-200">Nombre</th>
+                            <th class="py-2 px-4 border-b border-gray-200">Rango</th>
+                            <th class="py-2 px-4 border-b border-gray-200">Fecha</th>
+                            <th class="py-2 px-4 border-b border-gray-200">Hora de Entrada</th>
+                            <th class="py-2 px-4 border-b border-gray-200">Hora de Salida</th>
+                            <th class="py-2 px-4 border-b border-gray-200">Horas Trabajadas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaRegistros">
+                        <!-- Filas de registros se agregarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const registros = [];
+
+        function calcularHoras() {
+            const nombre = document.getElementById('nombre').value;
+            const rango = document.getElementById('rango').value;
+            const fecha = document.getElementById('fecha').value;
+            const horaEntrada = document.getElementById('horaEntrada').value;
+            const horaSalida = document.getElementById('horaSalida').value;
+
+            if (!nombre || !rango || !fecha || !horaEntrada || !horaSalida) {
+                alert('Por favor, complete todos los campos.');
+                return;
+            }
+
+            const entrada = new Date(`1970-01-01T${horaEntrada}:00`);
+            const salida = new Date(`1970-01-01T${horaSalida}:00`);
+            const diferencia = (salida - entrada) / (1000 * 60); // Diferencia en minutos
+
+            if (diferencia < 0) {
+                alert('La hora de salida debe ser posterior a la hora de entrada.');
+                return;
+            }
+
+            const horas = Math.floor(diferencia / 60);
+            const minutos = diferencia % 60;
+
+            const registro = {
+                nombre,
+                rango,
+                fecha,
+                horaEntrada,
+                horaSalida,
+                horasTrabajadas: `${horas} horas y ${minutos} minutos`
+            };
+
+            registros.push(registro);
+            limpiarFormulario();
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('registroForm').reset();
+        }
+
+        function buscarRegistro() {
+            const nombre = document.getElementById('buscarNombre').value.toLowerCase();
+            const tabla = document.getElementById('tablaRegistros');
+            tabla.innerHTML = '';
+
+            const resultados = registros.filter(registro => registro.nombre.toLowerCase().includes(nombre));
+
+            if (resultados.length > 0) {
+                document.getElementById('tablaContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('tablaContainer').classList.add('hidden');
+                alert('No se encontraron registros para el nombre ingresado.');
+                return;
+            }
+
+            resultados.forEach(registro => {
+                const fila = document.createElement('tr');
+
+                fila.innerHTML = `
+                    <td class="py-2 px-4 border-b border-gray-200">${registro.nombre}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">${registro.rango}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">${registro.fecha}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">${registro.horaEntrada}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">${registro.horaSalida}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">${registro.horasTrabajadas}</td>
+                `;
+
+                tabla.appendChild(fila);
+            });
+        }
+    </script>
+</body>
+</html>
